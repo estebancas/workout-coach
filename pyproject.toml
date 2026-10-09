@@ -13,6 +13,7 @@ dependencies = [
     "keyring>=25.7.0",
     "pydantic>=2.14.0",
     "python-dotenv>=1.2.4",
+    "pyyaml>=6.0.3",
     "rich>=15.0.0",
     "typer>=0.27.3",
 ]

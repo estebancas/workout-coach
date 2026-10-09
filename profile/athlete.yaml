@@ -1,0 +1,53 @@
+# Athlete profile read by workout-coach on every run.
+# Source: interview answers + notes already in routine.json. Not yet reviewed by trainer/physio.
+language: es
+context:
+  occupation: desk job, long hours sitting in front of a monitor
+  goals:
+    - muscle and aesthetics
+    - pain-free movement
+    - general fitness
+  equipment: full gym; resistance bands are limited at the moment
+  care_team: [trainer, physio]
+policy:
+  conflicts: substitute   # swap for a safer equivalent that keeps the training intent
+  on_pain: reduce_and_continue   # lower load or range and keep going if pain stays low
+  warmup_minutes: null    # no limit, coach decides
+  stretch_minutes: null   # no limit, coach decides
+injuries:
+  - area: knee
+    side: left
+    diagnosis: left knee pain (self-described, patellar tendon involvement suspected from routine notes)
+    since: 3-12 months
+    status: recovering
+    avoid:
+      - deep knee flexion
+      - stairs and step-ups
+    modify: []
+    prefer:
+      - isometrics (e.g. Spanish squat, wall sit)
+      - slow, heavy tempo with controlled range
+      - hip and glute strength (monster walks, bridges)
+      - quad and psoas stretching (couch stretch)
+  - area: hip flexors (psoas)
+    side: both
+    diagnosis: tightness from prolonged sitting, with lower-back pull (self-described)
+    since: null
+    status: maintenance
+    avoid: []
+    modify: []
+    prefer:
+      - hip CARs
+      - kneeling hip flexor stretch
+      - mobility work to keep the hip open
+  - area: neck and upper back (traps, C7)
+    side: both
+    diagnosis: prominent C7 vertebra with a "buffalo hump", trap tension from desk posture (self-described)
+    since: null
+    status: maintenance
+    avoid: []
+    modify: []
+    prefer:
+      - posture work for the upper back and neck
+      - trap stretches and neck mobility
+    notes: neck stiffness and headaches; posture and aesthetics are the concern. No movement restrictions stated.
