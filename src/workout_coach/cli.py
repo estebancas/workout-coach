@@ -1,8 +1,17 @@
+from datetime import date, datetime
+
 import typer
 from anthropic import Anthropic
 from dotenv import load_dotenv
 from rich.console import Console
+from rich.table import Table
 
+from workout_coach.fetch import (
+    fetch_workouts,
+    next_full_week,
+    save_snapshot,
+    summarize,
+)
 from workout_coach.truecoach import AuthError, TrueCoachClient, save_credentials
 
 MODEL = "claude-haiku-5-5"
@@ -60,3 +69,33 @@ def whoami() -> None:
     user = data["user"]
     name = " ".join(filter(None, [user.get("first_name"), user.get("last_name")]))
     console.print(f"client_id={data['clients'][0]['id']} name={name or '(unknown)'}")
+
+
+@app.command()
+def fetch(
+    start: str = typer.Option(
+        None, "--from", help="First day, YYYY-MM-DD. Default: next Monday."
+    ),
+    end: str = typer.Option(
+        None, "--to", help="Last day, YYYY-MM-DD. Default: next Sunday."
+    ),
+    states: str = typer.Option("pending", help="TrueCoach workout states to include."),
+) -> None:
+    """Fetch workouts for a date range, save a raw snapshot, print a summary."""
+    default_start, default_end = next_full_week(datetime.now().astimezone().date())
+    first = date.fromisoformat(start) if start else default_start
+    last = date.fromisoformat(end) if end else default_end
+    try:
+        data = fetch_workouts(TrueCoachClient(), first, last, states)
+    except AuthError as error:
+        console.print(f"[red]{error}[/red]")
+        raise typer.Exit(1) from error
+    if not data["workouts"]:
+        console.print(f"No workouts between {first} and {last} (states={states}).")
+        raise typer.Exit(1)
+    path = save_snapshot(data, first, last)
+    table = Table("Date", "Title", "Exercises")
+    for due, title, count in summarize(data):
+        table.add_row(due, title, str(count))
+    console.print(table)
+    console.print(f"[dim]Saved {path}[/dim]")
