@@ -1,4 +1,6 @@
 from datetime import date, datetime
+from pathlib import Path
+from typing import Annotated
 
 import typer
 from anthropic import Anthropic
@@ -7,11 +9,13 @@ from rich.console import Console
 from rich.table import Table
 
 from workout_coach.fetch import (
+    SNAPSHOT_DIR,
     fetch_workouts,
     next_full_week,
     save_snapshot,
     summarize,
 )
+from workout_coach.normalize import load_snapshot, normalize
 from workout_coach.truecoach import AuthError, TrueCoachClient, save_credentials
 
 MODEL = "claude-haiku-5-5"
@@ -99,3 +103,24 @@ def fetch(
         table.add_row(due, title, str(count))
     console.print(table)
     console.print(f"[dim]Saved {path}[/dim]")
+
+
+@app.command("normalize")
+def normalize_command(
+    paths: Annotated[
+        list[Path] | None,
+        typer.Argument(help="Snapshot files. Default: every file in data/snapshots."),
+    ] = None,
+) -> None:
+    """Map raw snapshots to DayRoutine objects (no LLM) and print a summary."""
+    files = paths or sorted(SNAPSHOT_DIR.glob("*.json"))
+    if not files:
+        console.print("No snapshots found. Run `workout-coach fetch` first.")
+        raise typer.Exit(1)
+    table = Table("Date", "Day", "Focus", "Exercises")
+    for file in files:
+        for due, routine in normalize(load_snapshot(file)):
+            table.add_row(
+                due.isoformat(), routine.day, routine.focus, str(len(routine.exercises))
+            )
+    console.print(table)

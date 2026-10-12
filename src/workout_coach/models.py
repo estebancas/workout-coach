@@ -32,7 +32,7 @@ class Exercise(Strict):
 class DayRoutine(Strict):
     day: Weekday
     focus: str
-    reference_file: str
+    reference_file: str | None = None
     mobility: list[Item]
     stretch: list[Item]
     exercises: list[Exercise]
